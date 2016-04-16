@@ -5,6 +5,7 @@ using System.Globalization;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Timers;
+using System.Windows.Forms;
 using FSXG13.Helpers;
 using Microsoft.FlightSimulator.SimConnect;
 using Timer = System.Timers.Timer;
@@ -88,58 +89,16 @@ namespace FSXG13
         private static readonly Font F = new Font("Pixelmix", 6, FontStyle.Regular);
         private static Brush B = new SolidBrush(Color.Black);
         private static Pen Pen = new Pen(B);
+        private static LCD lcd;
+
+        private static LCDFallbackWindow lcdFallback;
 
         private static readonly int[] SpdTicks = {0, 1000, 2000, 3000, 4000};
         public static IntPtr Handle { get; set; }
 
         private static void InitLCD()
         {
-            if (DMcLgLCD.LcdInit() != DMcLgLCD.ERROR_SUCCESS)
-                return;
-
-            connection = DMcLgLCD.LcdConnectEx("FSX", 0, 0);
-
-            if (connection == DMcLgLCD.LGLCD_INVALID_CONNECTION)
-                return;
-
-            device = DMcLgLCD.LcdOpenByType(connection, DMcLgLCD.LGLCD_DEVICE_QVGA);
-
-            if (device == DMcLgLCD.LGLCD_INVALID_DEVICE)
-            {
-                device = DMcLgLCD.LcdOpenByType(connection, DMcLgLCD.LGLCD_DEVICE_BW);
-                if (DMcLgLCD.LGLCD_INVALID_DEVICE != device)
-                {
-                    deviceType = DMcLgLCD.LGLCD_DEVICE_BW;
-                }
-            }
-            else
-            {
-                deviceType = DMcLgLCD.LGLCD_DEVICE_QVGA;
-            }
-
-            if (deviceType == DMcLgLCD.LGLCD_DEVICE_BW)
-            {
-                LCD = new Bitmap(160, 43);
-                var g = Graphics.FromImage(LCD);
-                g.Clear(Color.White);
-                g.Dispose();
-
-                DMcLgLCD.LcdUpdateBitmap(device, LCD.GetHbitmap(), DMcLgLCD.LGLCD_DEVICE_BW);
-                DMcLgLCD.LcdSetAsLCDForegroundApp(device, DMcLgLCD.LGLCD_FORE_YES);
-            }
-            else
-            {
-                LCD = new Bitmap(320, 240);
-                var g = Graphics.FromImage(LCD);
-                g.Clear(Color.White);
-                g.Dispose();
-
-                DMcLgLCD.LcdUpdateBitmap(device, LCD.GetHbitmap(), DMcLgLCD.LGLCD_DEVICE_QVGA);
-                DMcLgLCD.LcdSetAsLCDForegroundApp(device, DMcLgLCD.LGLCD_FORE_YES);
-            }
-
-            if (deviceType <= 0)
-                return;
+            lcd = new LCD("FSX");
 
             //The fastest you should send updates to the LCD is around 30fps or 34ms.  100ms is probably a good typical update speed.
             drawTimer = new Timer(40);
@@ -151,19 +110,17 @@ namespace FSXG13
         {
             try
             {
-                var g = Graphics.FromImage(LCD);
+                var g = lcd.GetGraphics();
                 g.Clear(planeStall ? Color.Black : Color.White);
                 g.TextRenderingHint = TextRenderingHint.SingleBitPerPixel;
 
                 DrawScreen(g, 160, 43);
 
-                DMcLgLCD.LcdUpdateBitmap(device, LCD.GetHbitmap(), DMcLgLCD.LGLCD_DEVICE_BW);
-
-                g.Dispose();
+                lcd.Draw();
             }
-            catch
+            catch(Exception e)
             {
-                // ignored
+                Console.WriteLine(e.ToString());
             }
         }
 
@@ -172,9 +129,31 @@ namespace FSXG13
             con.AddToDataDefinition(DEFINITIONS.Struct1, name, type, datatype, 0, SimConnect.SIMCONNECT_UNUSED);
         }
 
+        [STAThread]
+        private static void StartNewStaThread()
+        {
+            lcdFallback = new LCDFallbackWindow();
+            lcdFallback.Show();
+
+            lcdFallback.pictureBox1.Image = lcd.GetBitmap();
+
+            Application.Run(lcdFallback);
+        }
+
+        [STAThread]
         private static void Main(string[] args)
         {
+            Application.EnableVisualStyles();
+
             InitLCD();
+
+            if (!lcd.HasDevice)
+            {
+                Console.WriteLine("Couldn't find any compatible Logitech LCD");
+
+                var t = new Thread(StartNewStaThread);
+                t.Start();
+            }
 
             SimConnect simConnect;
 
@@ -232,6 +211,10 @@ namespace FSXG13
             //Main loop
             while (!Exit)
             {
+                Application.DoEvents();
+
+                lcdFallback.pictureBox1.Image = lcd.GetBitmap();
+
                 try
                 {
                     simConnect.ReceiveMessage();

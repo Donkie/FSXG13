@@ -120,6 +120,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Helpers\DMcLgLCD.cs" />
+    <Compile Include="Helpers\LCD.cs" />
+    <Compile Include="LCDFallbackWindow.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="LCDFallbackWindow.Designer.cs">
+      <DependentUpon>LCDFallbackWindow.cs</DependentUpon>
+    </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\Annotations.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -132,6 +139,11 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="lib\Microsoft.FlightSimulator.SimConnect.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="LCDFallbackWindow.resx">
+      <DependentUpon>LCDFallbackWindow.cs</DependentUpon>
+    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

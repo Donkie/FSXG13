@@ -5,6 +5,7 @@ using System.Globalization;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Timers;
+using FSXG13.Helpers;
 using Microsoft.FlightSimulator.SimConnect;
 using Timer = System.Timers.Timer;
 

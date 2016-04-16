@@ -4,10 +4,10 @@ using System.Runtime.InteropServices;
 // To use, simply drop this .cs file into your project and the DMcLgLCD.dll into your bin/Debug and bin/Release folders.
 // When you distribute your final product, just keep the .dll file in the same directory as your EXE.
 
-namespace FSXG13
+namespace FSXG13.Helpers
 {
 // ReSharper disable once InconsistentNaming
-    class DMcLgLCD
+    public class DMcLgLCD
     {
         // Windows Constants
         public const uint ERROR_SUCCESS = 0;
@@ -42,7 +42,7 @@ namespace FSXG13
         /// <returns>ERROR_SUCCESS on success, standard Windows error otherwise.</returns>
         /// <remarks>Must be paired with LcdDeInit.  Put LcdInit in your Form_Load
         /// or main and LcdDeInit in your exit function (ie. Form_Closing).</remarks>
-        [DllImport("DMcLgLCD.dll", EntryPoint = "LcdInit")]
+        [DllImport("lib/DMcLgLCD.dll", EntryPoint = "LcdInit")]
         public static extern uint LcdInit();
 
         /// <summary>
@@ -50,7 +50,7 @@ namespace FSXG13
         /// </summary>
         /// <returns>ERROR_SUCCESS on success, standard Windows error otherwise.</returns>
         /// <remarks>Put LcdDeInit in your exit function (ie. Form_Closing).</remarks>
-        [DllImport("DMcLgLCD.dll", EntryPoint = "LcdDeInit")]
+        [DllImport("lib/DMcLgLCD.dll", EntryPoint = "LcdDeInit")]
         public static extern uint LcdDeInit();
 
         /// <summary>
@@ -61,7 +61,7 @@ namespace FSXG13
         /// <param name="isAutostartable">Sets your program to be startable by the Logitech LCD Manager when Windows starts up.  Use 0 for most types of applications.</param>
         /// <returns>Connection on success.  LGLCD_INVALID_CONNECTION on failure.</returns>
         /// <remarks>Use only after LcdInit.  Multiple connections are allowed.</remarks>
-        [DllImport("DMcLgLCD.dll", EntryPoint = "LcdConnectA")]
+        [DllImport("lib/DMcLgLCD.dll", EntryPoint = "LcdConnectA")]
         public static extern int LcdConnect(
             [MarshalAs(UnmanagedType.LPStr)] string appFriendlyName,
             int isPersistent,
@@ -76,7 +76,7 @@ namespace FSXG13
         /// <returns>Connection on success.  LGLCD_INVALID_CONNECTION on failure.</returns>
         /// <remarks>Use only after LcdInit.  Multiple connections are allowed.
         /// Use LcdConnectEx if you need to read the extended G-19 buttons.  Otherwise only BUTTON_1 through BUTTON_4 will be returned.</remarks>
-        [DllImport("DMcLgLCD.dll", EntryPoint = "LcdConnectExA")]
+        [DllImport("lib/DMcLgLCD.dll", EntryPoint = "LcdConnectExA")]
         public static extern int LcdConnectEx(
             [MarshalAs(UnmanagedType.LPStr)] string appFriendlyName,
             int isPersistent,
@@ -88,7 +88,7 @@ namespace FSXG13
         /// <param name="connection">Connection that you wish to close.</param>
         /// <returns>ERROR_SUCCESS on success, standard Windows error otherwise.</returns>
         /// <remarks>Each LcdConnect requires it's own LcdDisconnect.  Issue before LcdDeInit.</remarks>
-        [DllImport("DMcLgLCD.dll", EntryPoint = "LcdDisconnect")]
+        [DllImport("lib/DMcLgLCD.dll", EntryPoint = "LcdDisconnect")]
         public static extern uint LcdDisconnect(
             int connection);
 
@@ -99,7 +99,7 @@ namespace FSXG13
         /// <param name="deviceType">Type of device you want to open.  LGLCD_DEVICE_BW or LGLCD_DEVICE_QVGA.</param>
         /// <returns>Device number if successful, LGLCD_INVALID_DEVICE otherwise.</returns>
         /// <remarks>Only one device can be open per connection.</remarks>
-        [DllImport("DMcLgLCD.dll", EntryPoint = "LcdOpenByType")]
+        [DllImport("lib/DMcLgLCD.dll", EntryPoint = "LcdOpenByType")]
         public static extern int LcdOpenByType(
             int connection,
             int deviceType);
@@ -110,7 +110,7 @@ namespace FSXG13
         /// <param name="device">Device number to close.</param>
         /// <returns>ERROR_SUCCESS on success, standard Windows error otherwise.</returns>
         /// <remarks>Issue before LcdDisconnect.</remarks>
-        [DllImport("DMcLgLCD.dll", EntryPoint = "LcdClose")]
+        [DllImport("lib/DMcLgLCD.dll", EntryPoint = "LcdClose")]
         public static extern uint LcdClose(
             int device);
 
@@ -133,7 +133,7 @@ namespace FSXG13
         /// LcdUpdateBitmap (device, LCD.GetHbitmap(), LGLCD_DEVICE_BW);
         /// LCD.Dispose();
         /// </example>
-        [DllImport("DMcLgLCD.dll", EntryPoint = "LcdUpdateBitmap")]
+        [DllImport("lib/DMcLgLCD.dll", EntryPoint = "LcdUpdateBitmap")]
         public static extern uint LcdUpdateBitmap(
             int device,
             IntPtr HBITMAP,
@@ -146,7 +146,7 @@ namespace FSXG13
         /// <param name="foregroundYesNoFlag">Either LGLCD_FORE_YES or LGLCD_FORE_NO.</param>
         /// <returns>ERROR_SUCCESS on success, standard Windows error otherwise.</returns>
         /// <remarks>Does nothing until after the first LcdUpdateBitmap has been sent.</remarks>
-        [DllImport("DMcLgLCD.dll", EntryPoint = "LcdSetAsLCDForegroundApp")]
+        [DllImport("lib/DMcLgLCD.dll", EntryPoint = "LcdSetAsLCDForegroundApp")]
         public static extern uint LcdSetAsLCDForegroundApp(
             int device,
             int foregroundYesNoFlag);
@@ -161,7 +161,7 @@ namespace FSXG13
         /// uint buttons = DMcLgLCD.LcdReadSoftButtons(device);
         /// if ((buttons & DMcLgLCD.LCD_BUTTON_1) == DMcLgLCD.LCD_BUTTON_1)
         /// </example>
-        [DllImport("DMcLgLCD.dll", EntryPoint = "LcdReadSoftButtons")]
+        [DllImport("lib/DMcLgLCD.dll", EntryPoint = "LcdReadSoftButtons")]
         public static extern uint LcdReadSoftButtons(
             int device);
 
@@ -177,7 +177,7 @@ namespace FSXG13
         /// </summary>
         /// <param name="configurationCallback">Name of your callback function.</param>
         /// <returns>ERROR_SUCCESS on success, standard Windows error otherwise.</returns>
-        [DllImport("DMcLgLCD.dll", EntryPoint = "LcdSetConfigCallback")]
+        [DllImport("lib/DMcLgLCD.dll", EntryPoint = "LcdSetConfigCallback")]
         public static extern uint LcdSetConfigCallback(
             cfgCallback configurationCallback);
 
@@ -185,7 +185,7 @@ namespace FSXG13
         //Button callback is unstable.  Use polling function instead.
         public delegate void btnCallback(int deviceType, int dwButtons);
 
-        [DllImport("DMcLgLCD.dll", EntryPoint = "LcdSetButtonCallback")]
+        [DllImport("lib/DMcLgLCD.dll", EntryPoint = "LcdSetButtonCallback")]
         public static extern uint LcdSetButtonCallback(
             btnCallback softKeyCallback);
 

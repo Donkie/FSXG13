@@ -213,7 +213,8 @@ namespace FSXG13
             {
                 Application.DoEvents();
 
-                lcdFallback.pictureBox1.Image = lcd.GetBitmap();
+                if(lcdFallback != null)
+                    lcdFallback.pictureBox1.Image = lcd.GetBitmap();
 
                 try
                 {

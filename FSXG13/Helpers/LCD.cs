@@ -55,6 +55,7 @@ namespace FSXG13.Helpers
             device = DMcLgLCD.LcdOpenByType(connection, DMcLgLCD.LGLCD_DEVICE_QVGA);
             if (device != DMcLgLCD.LGLCD_INVALID_DEVICE)
             {
+                Console.WriteLine("Found Color Logitech LCD");
                 HasDevice = true;
                 ColorMode = LCDColorMode.Color;
                 Width = 320;
@@ -63,9 +64,10 @@ namespace FSXG13.Helpers
             }
             else
             {
-                device = DMcLgLCD.LcdOpenByType(connection, DMcLgLCD.LGLCD_DEVICE_QVGA);
+                device = DMcLgLCD.LcdOpenByType(connection, DMcLgLCD.LGLCD_DEVICE_BW);
                 if (device != DMcLgLCD.LGLCD_INVALID_DEVICE)
                 {
+                    Console.WriteLine("Found Monochrome Logitech LCD");
                     HasDevice = true;
                     ColorMode = LCDColorMode.Monochrome;
                     Width = 160;
